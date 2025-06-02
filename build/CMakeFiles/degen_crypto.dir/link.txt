@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/degen_crypto.dir/main.cpp.o -o release/degen_crypto 
