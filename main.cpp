@@ -1,8 +1,8 @@
 #include <iostream>
 
 int main() {
-    printf("------------------------------------------\n");
-    printf("      Degen Crypto Terminal               \n");
-    printf("------------------------------------------\n");
+    std::printf("------------------------------------------\n");
+    std::printf("      Degen Crypto Terminal               \n");
+    std::printf("------------------------------------------\n");
     return 0;
 }
