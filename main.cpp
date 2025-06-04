@@ -1,8 +1,9 @@
 #include <iostream>
+#include <fmt/base.h>
 
 int main() {
-    std::printf("------------------------------------------\n");
-    std::printf("      Degen Crypto Terminal               \n");
-    std::printf("------------------------------------------\n");
+    fmt::print("------------------------------------------\n");
+    fmt::print("      Degen Crypto Terminal               \n");
+    fmt::print("------------------------------------------\n");
     return 0;
 }
