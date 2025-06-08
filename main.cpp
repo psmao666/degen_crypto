@@ -1,7 +1,7 @@
 #include <iostream>
-#include <fmt/base.h>
+#include <fmt/core.h>
 
-int main() {
+auto main() -> int {
     fmt::print("------------------------------------------\n");
     fmt::print("      Degen Crypto Terminal               \n");
     fmt::print("------------------------------------------\n");
