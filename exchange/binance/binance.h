@@ -1,19 +1,14 @@
 #pragma once
 
-#include <string>
 #include <optional>
+#include "../base_exchange.h"
 
 namespace degen_crypto { namespace exchange { namespace binance {
 
-class AccountConfig {
-
-};
-
-
-class ExchangeEngine {
-private:
-    AccountConfig account_config_;
-
+class BinanceExchange : public ExchangeEngine {
+public:
+    auto on_start() -> void override;
+    auto on_shutdown() -> void override;
 };
 
 } // namespace binance
