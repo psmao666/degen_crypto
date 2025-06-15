@@ -1,4 +1,11 @@
 {
     "api_key": "N4Rc18ElLLEmD75hRuA19wL0ri38R2jbC7lzfHXeZS6niveghEIjcn4F8s2AVbZ9",
-    "secret_key": "Q453Xg8fMvZqCrfNmGspuLIXHQjr5nFINZX8LM42qDDdl3FOMwgb7e6pbdBx5UlQ"
+    "secret_key": "Q453Xg8fMvZqCrfNmGspuLIXHQjr5nFINZX8LM42qDDdl3FOMwgb7e6pbdBx5UlQ",
+    "hosts": [
+        "api.binance.com",
+        "api1.binance.com",
+        "api2.binance.com",
+        "api3.binance.com",
+        "api4.binance.com"
+    ]   
 } 
