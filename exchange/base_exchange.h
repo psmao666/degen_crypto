@@ -12,7 +12,9 @@ template<typename Derived>
 class ExchangeEngine {
 public:
     ExchangeEngine() = default;
-    ~ExchangeEngine() = default;
+    ~ExchangeEngine() {
+        derived().on_shutdown();
+    }
 
 protected:
     AccountConfig account_config_;
