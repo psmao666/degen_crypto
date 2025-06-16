@@ -1,28 +1,35 @@
 #pragma once
 
 #include <optional>
+
 #include "exchange/base_exchange.h"
+#include "model.h"
+#include "exchange/constants.h"
 
 namespace degen_crypto { namespace exchange { namespace binance {
 
-class BinanceExchange final : public ExchangeEngine {
+class BinanceExchange : public ExchangeEngine<BinanceExchange> {
+    friend class ExchangeEngine<BinanceExchange>;
+    
 public:
     BinanceExchange() = default;
-    ~BinanceExchange() override {
+    ~BinanceExchange() {
         on_shutdown();
     }
-public:
-    auto on_start() -> bool override;
-    auto on_shutdown() -> bool override;
-    auto ping_exchange() -> bool override;
-private:
-    // TODO: right now we just pick the first, but in the future we will maintain usability
-    auto get_host() const -> const std::string & {
+
+    auto on_start() -> bool;
+    auto on_shutdown() -> bool;
+    auto ping_exchange() -> bool;
+    auto get_server_time() -> std::chrono::system_clock::time_point;
+    inline auto exchange_name() const -> const std::string& {
+        return constants::EXCHANGE_NAME;
+    }
+    inline auto get_host() const -> const std::string& {
         return exchange_hosts_[0];
     }
-    auto get_server_time() -> std::chrono::system_clock::time_point;
+
 };
 
 } // namespace binance
 } // namespace exchange
-} // namespace degen
+} // namespace degen_crypto
