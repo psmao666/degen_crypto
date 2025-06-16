@@ -8,3 +8,7 @@ run at root dir for this project:
 ./bootstrap.sh
 ```
 
+## Arguments
+
+### Run in debug mode
+--debug            
