@@ -17,8 +17,8 @@ int main() { // NOLINT
     fmt::print("Loading Exchanges...\n");
     
     fmt::print("Loading Binance...\n");
-    auto binance_ptr = std::make_unique<binance::BinanceExchange>();
-    std::jthread binance_worker([&binance_ptr]() { binance_ptr->on_start(); });
+    std::unique_ptr<ExchangeEngine<binance::BinanceExchange>> binance_engine = std::make_unique<binance::BinanceExchange>();
+    std::jthread binance_worker([&binance_engine]() { binance_engine->on_start(); });
 
     fmt::print("Done Loading Exchanges!\n");
     // load indicators
