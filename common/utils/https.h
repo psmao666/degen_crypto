@@ -9,8 +9,10 @@
 #include <string>
 #include <mutex>
 #include <fmt/core.h>
+#include "common/utils/logger.h"
 
 namespace degen_crypto { namespace common { namespace utils {
+using namespace degen_crypto::logger;
 
 class HttpsClient {
 public:
@@ -19,7 +21,7 @@ public:
     }
 
     template<typename ResponseType>
-    std::optional<ResponseType> get(const std::string& host, const std::string& target) {
+    std::optional<ResponseType> get(const std::string& host, const std::string& target, const std::unordered_map<std::string, std::string>& headers = {}) {
         std::lock_guard<std::mutex> lock(https_mutex_);
         
         try {
@@ -44,13 +46,16 @@ public:
             req.set(boost::beast::http::field::user_agent, "DegenCrypto/1.0");
             req.set(boost::beast::http::field::accept, "application/json");
             req.set(boost::beast::http::field::connection, "close");
-            
+            for (const auto& [key, value] : headers) {
+                req.set(key, value);
+            }
             boost::beast::http::write(stream, req);
             boost::beast::flat_buffer buffer;
             boost::beast::http::response<boost::beast::http::dynamic_body> res;
             boost::beast::http::read(stream, buffer, res);
-            
+
             if (res.result() != boost::beast::http::status::ok) {
+                LOG_ERROR(g_logger, "HTTP Error: {}", static_cast<int>(res.result()));
                 return std::nullopt;
             }
             

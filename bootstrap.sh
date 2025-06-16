@@ -8,6 +8,17 @@ print_status() {
 # Error handling
 set -e
 
+# Parse command line arguments
+DEBUG_BUILD=false
+for arg in "$@"; do
+    case $arg in
+        --debug)
+            DEBUG_BUILD=true
+            shift
+            ;;
+    esac
+done
+
 print_status "Starting <Degen Crypto> build process..."
 
 # Create build directory if it doesn't exist
@@ -20,7 +31,13 @@ cd build
 
 # Generate build files with CMake
 print_status "Generating CMake build files..."
-cmake ..
+if [ "$DEBUG_BUILD" = true ]; then
+    print_status "Building in DEBUG mode..."
+    cmake -DCMAKE_BUILD_TYPE=Debug -DDEBUG=ON ..
+else
+    print_status "Building in RELEASE mode..."
+    cmake ..
+fi
 
 # Build the project
 print_status "Building project..."

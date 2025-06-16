@@ -15,6 +15,8 @@ public:
     void set_api_secret(const std::string& api_secret) {
         api_secret_ = api_secret;
     }
+    const std::string& api_key() const { return api_key_; }
+    const std::string& api_secret() const { return api_secret_; }
 private:
     std::string api_key_;
     std::string api_secret_;

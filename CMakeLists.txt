@@ -3,6 +3,13 @@ cmake_minimum_required(VERSION 3.10)
 # Set project name and language
 project(degen_crypto CXX)
 
+# Enable parallel compilation
+include(ProcessorCount)
+ProcessorCount(N)
+if(NOT N EQUAL 0)
+    set(CMAKE_BUILD_PARALLEL_LEVEL ${N})
+endif()
+
 # Enable compile commands for clangd
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -32,6 +39,14 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(json)
 
+# Add Quil library
+FetchContent_Declare(
+    quill
+    GIT_REPOSITORY https://github.com/odygrd/quill.git
+    GIT_TAG v10.0.0
+)
+FetchContent_MakeAvailable(quill)
+
 # Set output directories
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/release)
 
@@ -39,6 +54,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/release)
 set(SOURCES
     main.cpp
     exchange/binance/binance.cpp
+    common/utils/logger.cpp
 )
 
 # Add executable
@@ -51,10 +67,19 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     Boost::system
     OpenSSL::SSL
     OpenSSL::Crypto
+    quill::quill
 )
 
 # Add include directories
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}
     ${Boost_INCLUDE_DIRS}
-) 
+)
+
+# Add ignore deprecation flag
+target_compile_options(${PROJECT_NAME} PRIVATE -Wno-deprecated-declarations)
+
+# Handle DEBUG definition
+if(DEBUG)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE DEBUG)
+endif() 
