@@ -1,7 +1,6 @@
 #include "binance.h"
 #include "model.h"
 #include "common/utils/https.h"
-#include "common/utils/signature.h"
 
 #include <fstream>
 #include <chrono>
@@ -74,11 +73,11 @@ auto BinanceExchange::on_shutdown() -> bool {
 
 // We actually use /api/v3/time to check if the exchange is alive
 auto BinanceExchange::ping_exchange() -> bool {
-    return https_.get<ServerTimeResponse>(get_host(), api::SERVER_TIME_API).has_value();
+    return https_.get<ServerTimeResponse>(get_host(), api::SERVER_TIME_API, account_config_.api_secret()).has_value();
 }
 
 auto BinanceExchange::get_server_time() -> std::chrono::system_clock::time_point {
-    auto t = https_.get<ServerTimeResponse>(get_host(), api::SERVER_TIME_API);
+    auto t = https_.get<ServerTimeResponse>(get_host(), api::SERVER_TIME_API, account_config_.api_secret());
     if (!t.has_value()) {
         throw std::runtime_error("Failed to get server time");
     }
@@ -86,7 +85,7 @@ auto BinanceExchange::get_server_time() -> std::chrono::system_clock::time_point
 }
 
 auto BinanceExchange::realtime_price(const std::string_view& symbol) -> double {
-    const auto response = https_.get<nlohmann::json>(get_host(), fmt::format("{}?symbol={}", api::TICKER_PRICE_API, symbol));
+    const auto response = https_.get<nlohmann::json>(get_host(), fmt::format("{}?symbol={}", api::TICKER_PRICE_API, symbol), account_config_.api_secret());
     if (!response.has_value()) {
         throw std::runtime_error(fmt::format("Failed to get {} price", symbol));
     }
@@ -99,23 +98,15 @@ auto BinanceExchange::trade(const std::string_view& symbol, const std::string_vi
 }
 
 auto BinanceExchange::get_account_balance() -> double {
-    auto timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(
-        std::chrono::system_clock::now().time_since_epoch()
-    ).count();
     
-    std::string query_string = fmt::format("timestamp={}", timestamp);
-    std::string signature = common::utils::generate_signature(query_string, account_config_.api_secret());
-    
-    query_string += fmt::format("&signature={}", signature);
-#ifdef DEBUG
-    fmt::print("query_string: {}\n", query_string);
-#endif
     const auto response = https_.get<nlohmann::json>(
         get_host(),
-        fmt::format("{}?{}", api::ACCOUNT_API, query_string),
+        api::ACCOUNT_API,
+        account_config_.api_secret(),
         {
             {"X-MBX-APIKEY", account_config_.api_key()}
-        }
+        },
+        true
     );
 
     if (!response.has_value()) {

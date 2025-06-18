@@ -8,8 +8,11 @@
 #include <optional>
 #include <string>
 #include <mutex>
+#include <iostream>
 #include <fmt/core.h>
 #include "common/utils/logger.h"
+#include "common/utils/time.h"
+#include "common/utils/signature.h"
 
 namespace degen_crypto { namespace common { namespace utils {
 using namespace degen_crypto::logger;
@@ -20,10 +23,24 @@ public:
         ctx_.set_verify_mode(boost::asio::ssl::verify_none);
     }
 
+public:
     template<typename ResponseType>
-    std::optional<ResponseType> get(const std::string& host, const std::string& target, const std::unordered_map<std::string, std::string>& headers = {}) {
-        std::lock_guard<std::mutex> lock(https_mutex_);
+    std::optional<ResponseType> get(const std::string& host, const std::string& target, const std::string& api_secret, const std::unordered_map<std::string, std::string>& headers = {}, bool need_signature = false) {
+        if (!need_signature) return get_helper<ResponseType>(host, target, headers);
         
+        auto timestamp = common::utils::get_current_ms_epoch(); 
+        std::string query_string = fmt::format("timestamp={}", timestamp);
+        std::string signature = common::utils::generate_signature(query_string, api_secret);
+        query_string += fmt::format("&signature={}", signature);
+        query_string = fmt::format("{}?{}", target, query_string);
+        
+        return get_helper<ResponseType>(host, query_string, headers);
+    }
+
+private:
+    template<typename ResponseType>
+    std::optional<ResponseType> get_helper(const std::string& host, const std::string& target, const std::unordered_map<std::string, std::string>& headers = {}) {
+        std::lock_guard<std::mutex> lock(https_mutex_);
         try {
             boost::asio::ip::tcp::resolver resolver(ioc_);
             const auto& results = resolver.resolve(host, "https");
@@ -55,7 +72,7 @@ public:
             boost::beast::http::read(stream, buffer, res);
 
             if (res.result() != boost::beast::http::status::ok) {
-                LOG_ERROR(g_logger, "HTTP Error: {}", static_cast<int>(res.result()));
+                LOG_ERROR(g_logger, "HTTP Error: {} with payload: {}", boost::beast::buffers_to_string(res.body().data()), target);
                 return std::nullopt;
             }
             
