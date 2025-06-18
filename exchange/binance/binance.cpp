@@ -97,8 +97,7 @@ auto BinanceExchange::trade(const std::string_view& symbol, const std::string_vi
     return false;
 }
 
-auto BinanceExchange::get_account_balance() -> double {
-    
+auto BinanceExchange::get_account_balance(const std::string_view& symbol) -> double {
     const auto response = https_.get<nlohmann::json>(
         get_host(),
         api::ACCOUNT_API,
@@ -115,13 +114,22 @@ auto BinanceExchange::get_account_balance() -> double {
     
     double total_balance = 0.0;
     for (const auto& balance : response.value()["balances"]) {
-        if (balance["asset"] == "USDT") {
+        if (balance["asset"] == symbol) {
             total_balance += std::stod(balance["free"].get<std::string>());
             total_balance += std::stod(balance["locked"].get<std::string>());
         }
     }
     
     return total_balance;
+}
+
+auto BinanceExchange::run() -> void {
+    while (1) {
+        fmt::print("BTC/USDT price: {}\n", realtime_price(constants::BTC_USDT));
+        fmt::print("USDC/USDT price: {}\n", realtime_price(constants::USDC_USDT));
+        fmt::print("Account balance: {}\n", get_account_balance(constants::USDT));
+        std::this_thread::sleep_for(std::chrono::microseconds(200));
+    }
 }
 
 } // namespace binance
