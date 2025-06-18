@@ -4,3 +4,4 @@ compile_commands.json
 .vscode/
 exchange/*/api_key.json
 packages.microsoft.gpg
+controller_*.log
