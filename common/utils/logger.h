@@ -19,7 +19,7 @@ inline void init_logger() {
 
     // Create file sink
     auto file_sink = quill::Frontend::create_or_get_sink<quill::FileSink>(
-        "controller.log",
+        "logs/controller.log",
         []() {
             quill::FileSinkConfig cfg;
             cfg.set_open_mode('w');

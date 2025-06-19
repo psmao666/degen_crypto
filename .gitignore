@@ -2,6 +2,4 @@ build/
 compile_commands.json
 .cache/
 .vscode/
-exchange/*/api_key.json
-packages.microsoft.gpg
 controller_*.log

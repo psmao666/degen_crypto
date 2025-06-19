@@ -13,18 +13,35 @@ namespace binance {
     } // namespace api
 
     namespace constants {
-        const std::string EXCHANGE_NAME = "Binance";
+        const std::string EXCHANGE_NAME = "BINANCE";
 
         // exchange config related constants
-        const std::string EXCHANGE_API_KEY_FILE = "exchange/binance/api_key.json";
         const std::string EXCHANGE_CONFIG_FILE = "exchange/binance/config.json";
         const std::string EXCHANGE_HOSTS_KEY = "hosts";
-        const std::string EXCHANGE_API_KEY_KEY = "api_key";
-        const std::string EXCHANGE_SECRET_KEY_KEY = "secret_key";
+        const std::string EXCHANGE_API_KEY = "API_KEY";
+        const std::string EXCHANGE_SECRET_KEY = "SECRET_KEY";
 
         // currency pair
         const std::string BTC_USDT = "BTCUSDT";
         const std::string USDC_USDT = "USDCUSDT";
+
+
+        // currency
+        const std::string USDT = "USDT";
+        const std::string USDC = "USDC";
+        const std::string BTC = "BTC";
+        const std::string ETH = "ETH";
+        const std::string SOL = "SOL";
+        const std::string XRP = "XRP";
+        const std::string ADA = "ADA";
+        const std::string DOT = "DOT";
+        const std::string LINK = "LINK";
+        const std::string BNB = "BNB";
+        const std::string XLM = "XLM";
+        const std::string LTC = "LTC";  
+        const std::string BCH = "BCH";
+        const std::string XMR = "XMR";
+        const std::string FDUSD = "FDUSD";
     } // namespace constants
 
 } // namespace binance

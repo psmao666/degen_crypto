@@ -51,4 +51,12 @@ cd ..
 # Make the binary executable
 chmod +x build/release/degen_crypto
 
+# Clear legacy log files
+if [ -f controller_*.log ]; then
+    rm controller_*.log
+fi
+
+# Set timezone to Hong Kong
+export TZ=Asia/Hong_Kong
+
 print_status "You can now run the program with: ./build/release/degen_crypto" 

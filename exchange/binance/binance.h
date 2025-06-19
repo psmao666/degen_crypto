@@ -33,16 +33,9 @@ public:
 private:
     auto realtime_price(const std::string_view& symbol) -> double;
     auto trade(const std::string_view& symbol, const std::string_view& side, const std::string_view& type, const std::string_view& quantity, double max_slippage) -> bool;
-    auto get_account_balance() -> double;
+    auto get_account_balance(const std::string_view& symbol) -> double;
 
-    auto run() -> void {
-        while (1) {
-            fmt::print("BTC/USDT price: {}\n", realtime_price(constants::BTC_USDT));
-            fmt::print("USDC/USDT price: {}\n", realtime_price(constants::USDC_USDT));
-            fmt::print("Account balance: {}\n", get_account_balance());
-            std::this_thread::sleep_for(std::chrono::microseconds(200));
-        }
-    }
+    auto run() -> void;
 };
 
 } // namespace binance

@@ -17,14 +17,19 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Find Boost
-find_package(Boost REQUIRED COMPONENTS system)
+# Add Boost from GitHub
+include(FetchContent)
+FetchContent_Declare(
+    boost
+    GIT_REPOSITORY https://github.com/boostorg/boost.git
+    GIT_TAG boost-1.84.0
+)
+FetchContent_MakeAvailable(boost)
 
 # Find OpenSSL
 find_package(OpenSSL REQUIRED)
 
 # Add fmt library
-include(FetchContent)
 FetchContent_Declare(
     fmt
     GIT_REPOSITORY https://github.com/fmtlib/fmt.git
@@ -64,7 +69,6 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 target_link_libraries(${PROJECT_NAME} PRIVATE 
     fmt::fmt
     nlohmann_json::nlohmann_json
-    Boost::system
     OpenSSL::SSL
     OpenSSL::Crypto
     quill::quill
@@ -73,7 +77,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 # Add include directories
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}
-    ${Boost_INCLUDE_DIRS}
+    ${boost_SOURCE_DIR}
 )
 
 # Add ignore deprecation flag
