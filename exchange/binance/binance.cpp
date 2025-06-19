@@ -13,26 +13,16 @@ namespace degen_crypto { namespace exchange { namespace binance {
 auto BinanceExchange::on_start() -> bool {
     LOG_INFO(g_logger, "BinanceExchange::on_start() triggered");
     
-    // Load API key config
-    std::ifstream api_key_file(constants::EXCHANGE_API_KEY_FILE);
-    if (!api_key_file.is_open()) {
-        LOG_ERROR(g_logger, "Failed to open {}", constants::EXCHANGE_API_KEY_FILE);
+    // Load API key from environment variables
+    const char* api_key = std::getenv((constants::EXCHANGE_NAME + "_" + constants::EXCHANGE_API_KEY).c_str());
+    const char* secret_key = std::getenv((constants::EXCHANGE_NAME + "_" + constants::EXCHANGE_SECRET_KEY).c_str());
+    
+    if (!api_key || !secret_key) {
+        LOG_ERROR(g_logger, "Missing required environment variables: {} and/or {}", constants::EXCHANGE_NAME + "_" + constants::EXCHANGE_API_KEY, constants::EXCHANGE_NAME + "_" + constants::EXCHANGE_SECRET_KEY);
         return false;
     }
     
-    nlohmann::json api_config;
-    try {
-        api_key_file >> api_config;
-        if (!api_config.contains(constants::EXCHANGE_API_KEY_KEY) || !api_config.contains(constants::EXCHANGE_SECRET_KEY_KEY)) {
-            LOG_ERROR(g_logger, "{} missing required fields", constants::EXCHANGE_API_KEY_FILE);
-            return false;
-        }
-        init_account_api_config(api_config[constants::EXCHANGE_API_KEY_KEY], api_config[constants::EXCHANGE_SECRET_KEY_KEY]);
-    } catch (const nlohmann::json::exception& e) {
-        LOG_ERROR(g_logger, "Failed to parse {}: {}", constants::EXCHANGE_API_KEY_FILE, e.what());
-        return false;
-    }
-    api_key_file.close();
+    init_account_api_config(api_key, secret_key);
     
     // Load exchange config
     std::ifstream config_file(constants::EXCHANGE_CONFIG_FILE);
@@ -124,12 +114,7 @@ auto BinanceExchange::get_account_balance(const std::string_view& symbol) -> dou
 }
 
 auto BinanceExchange::run() -> void {
-    while (1) {
-        fmt::print("BTC/USDT price: {}\n", realtime_price(constants::BTC_USDT));
-        fmt::print("USDC/USDT price: {}\n", realtime_price(constants::USDC_USDT));
-        fmt::print("Account balance: {}\n", get_account_balance(constants::USDT));
-        std::this_thread::sleep_for(std::chrono::microseconds(200));
-    }
+    // TODO: implement run
 }
 
 } // namespace binance
