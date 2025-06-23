@@ -13,7 +13,7 @@ EMAIL_PASSWORD = os.environ['EMAIL_PASSWORD']      # App password
 # Get today's date in YYYYMMDD format
 today = datetime.now().strftime('%Y%m%d')
 log_filename = f'controller_{today}.log'
-log_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), log_filename)
+log_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "logs", today, log_filename)
 
 msg = MIMEMultipart()
 msg['Subject'] = '[Degen Crypto] Daily P&L Report'

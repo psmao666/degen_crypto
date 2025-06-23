@@ -32,11 +32,11 @@ cd build
 # Generate build files with CMake
 print_status "Generating CMake build files..."
 if [ "$DEBUG_BUILD" = true ]; then
-    print_status "Building in DEBUG mode..."
+    print_status "Building in DEBUG mode with GDB support..."
     cmake -DCMAKE_BUILD_TYPE=Debug -DDEBUG=ON ..
 else
     print_status "Building in RELEASE mode..."
-    cmake ..
+    cmake -DCMAKE_BUILD_TYPE=Release ..
 fi
 
 # Build the project
@@ -51,12 +51,13 @@ cd ..
 # Make the binary executable
 chmod +x build/release/degen_crypto
 
-# Clear legacy log files
-if [ -f controller_*.log ]; then
-    rm controller_*.log
-fi
-
 # Set timezone to Hong Kong
 export TZ=Asia/Hong_Kong
 
-print_status "You can now run the program with: ./build/release/degen_crypto" 
+if [ "$DEBUG_BUILD" = true ]; then
+    print_status "Debug build completed! You can now debug with:"
+    print_status "  gdb build/release/degen_crypto"
+    print_status "  or run with: ./build/release/degen_crypto"
+else
+    print_status "Release build completed! You can now run: ./build/release/degen_crypto"
+fi 

@@ -60,6 +60,7 @@ set(SOURCES
     main.cpp
     exchange/binance/binance.cpp
     common/utils/logger.cpp
+    exchange/orderbook.cpp
 )
 
 # Add executable
@@ -80,8 +81,13 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${boost_SOURCE_DIR}
 )
 
-# Add ignore deprecation flag
-target_compile_options(${PROJECT_NAME} PRIVATE -Wno-deprecated-declarations)
+# Add compiler flags for debugging
+target_compile_options(${PROJECT_NAME} PRIVATE 
+    -Wno-deprecated-declarations
+    -g                    # Generate debug information
+    -O0                   # Disable optimization for better debugging
+    -fno-omit-frame-pointer  # Keep frame pointers for better stack traces
+)
 
 # Handle DEBUG definition
 if(DEBUG)
