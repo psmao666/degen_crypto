@@ -5,5 +5,16 @@
         "api2.binance.com",
         "api3.binance.com",
         "api4.binance.com"
-    ]   
+    ],
+    "ws": {
+        "host": "stream.binance.com",
+        "port": "443"
+    },
+    "subscriptions": [
+        {
+            "symbol": "usdcusdt",
+            "level": 5
+        }
+        
+    ]
 } 

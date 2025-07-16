@@ -19,6 +19,8 @@ public:
 protected:
     AccountConfig account_config_;
     std::vector<std::string> exchange_hosts_;
+    std::string exchange_ws_host_;
+    std::string exchange_ws_port_;
     common::utils::HttpsClient https_;
 
     // Helper method to access derived class methods
@@ -30,7 +32,9 @@ public:
     auto on_start() -> bool { return derived().on_start(); }
     auto on_shutdown() -> bool { return derived().on_shutdown(); }
     inline auto exchange_name() const -> const std::string& { return derived().exchange_name(); }
-    inline auto get_host() const -> const std::string& { return derived().get_host(); }
+    inline auto exchange_host() const -> const std::string& { return derived().exchange_host(); }
+    inline auto ws_host() const -> const std::string& { return derived().ws_host(); }
+    inline auto ws_port() const -> const std::string& { return derived().ws_port(); }
     auto get_server_time() -> std::chrono::system_clock::time_point { return derived().get_server_time(); }
 
 // base impl    

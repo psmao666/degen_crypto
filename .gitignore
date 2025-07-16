@@ -2,4 +2,4 @@ build/
 compile_commands.json
 .cache/
 .vscode/
-controller_*.log
+logs/

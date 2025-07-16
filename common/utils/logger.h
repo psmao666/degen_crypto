@@ -16,10 +16,12 @@ extern quill::Logger* g_logger;
 inline void init_logger() {
     quill::BackendOptions backend_options;
     quill::Backend::start(backend_options);
+    auto today = std::chrono::floor<std::chrono::days>(std::chrono::system_clock::now());
+    std::chrono::year_month_day ymd{today};
 
     // Create file sink
     auto file_sink = quill::Frontend::create_or_get_sink<quill::FileSink>(
-        "logs/controller.log",
+        "logs/" + std::format("{:%Y%m%d}", ymd) + "/controller.log",
         []() {
             quill::FileSinkConfig cfg;
             cfg.set_open_mode('w');
