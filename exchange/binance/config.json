@@ -12,12 +12,9 @@
     },
     "subscriptions": [
         {
-            "symbol": "btcusdt",
-            "level": 5
-        },
-        {
-            "symbol": "ethusdt",
+            "symbol": "usdcusdt",
             "level": 5
         }
+        
     ]
 } 

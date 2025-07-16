@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <nlohmann/json_fwd.hpp>
 #include "common/utils/logger.h"
+#include "exchange/orderbook.h"
 
 namespace degen_crypto { namespace kitchen {
 
@@ -18,16 +19,16 @@ class StrategyManager;
  */
 class IStrategy {
 public:
+    typedef exchange::order_book::OrderBook order_book_t;
+public:
     virtual ~IStrategy() = default;
     virtual bool on_start() = 0;
     virtual bool on_shutdown() = 0;
     virtual bool load_params(const nlohmann::json& params) = 0;
-    virtual const std::string& strategy_name() const = 0;
+    virtual const char* strategy_name() const = 0;
     virtual void run() = 0;
-    void set_manager(StrategyManager* manager) { manager_ = manager; }
+    virtual void on_orderbook_update_callback(const std::string& exchange_name, const std::string& symbol, const order_book_t& orderbook) = 0;
 
-protected:
-    StrategyManager* manager_ = nullptr;
 };
 
 /**
@@ -40,12 +41,14 @@ public:
     Strategy() = default;
     ~Strategy() override = default;
 
-    // Override the virtual functions from IStrategy and delegate to Derived.
     bool on_start() override { return derived().on_start(); }
     bool on_shutdown() override { return derived().on_shutdown(); }
     bool load_params(const nlohmann::json& params) override { return derived().load_params(params); }
-    const std::string& strategy_name() const override { return derived().strategy_name(); }
+    const char* strategy_name() const override { return derived().strategy_name(); }
     void run() override { derived().run(); }
+    void on_orderbook_update_callback(const std::string& exchange_name, const std::string& symbol, const order_book_t& orderbook) override {
+        derived().on_orderbook_update_callback(exchange_name, symbol, orderbook);
+    }
 
 protected:
     auto derived() -> Derived& { return static_cast<Derived&>(*this); }
@@ -57,11 +60,27 @@ protected:
  */
 class StrategyManager {
 public:
-    StrategyManager() = default;
+    typedef exchange::order_book::OrderBook order_book_t;
+public:
+    StrategyManager();
     ~StrategyManager() {
         // Ensure all strategies are shutdown cleanly on destruction.
         for (auto& strategy : strategies_) {
             strategy->on_shutdown();
+        }
+    }
+
+    /**
+     * @brief Notify all strategies about an orderbook update
+     */
+    void notify_orderbook_update(const std::string& exchange_name, const std::string& symbol, const order_book_t& orderbook) {
+        for (auto& strategy : strategies_) {
+            try {
+                strategy->on_orderbook_update_callback(exchange_name, symbol, orderbook);
+            } catch (const std::exception& e) {
+                LOG_ERROR(logger::g_logger, "Strategy '{}' failed in orderbook callback: {}", 
+                         strategy->strategy_name(), e.what());
+            }
         }
     }
 
@@ -78,11 +97,9 @@ public:
         
         if (std::any_of(strategies_.begin(), strategies_.end(), 
             [&name](const auto& s) { return s->strategy_name() == name; })) {
-            LOG_WARN(logger::g_logger, "Strategy '{}' is already hooked.", name);
+            LOG_WARNING(logger::g_logger, "Strategy '{}' is already hooked.", name);
             return false;
         }
-
-        new_strategy->set_manager(this);
 
         if (!new_strategy->load_params(params)) {
             LOG_ERROR(logger::g_logger, "Failed to load params for strategy '{}'", name);

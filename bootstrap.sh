@@ -16,6 +16,10 @@ for arg in "$@"; do
             DEBUG_BUILD=true
             shift
             ;;
+        --mock)
+            MOCK_TRADE=true
+            shift
+            ;;
     esac
 done
 
@@ -33,10 +37,22 @@ cd build
 print_status "Generating CMake build files..."
 if [ "$DEBUG_BUILD" = true ]; then
     print_status "Building in DEBUG mode with GDB support..."
-    cmake -DCMAKE_BUILD_TYPE=Debug -DDEBUG=ON ..
+    if [ "$MOCK_TRADE" = true ]; then
+        print_status "Building with MOCK_TRADE enabled..."
+        cmake -DCMAKE_BUILD_TYPE=Debug -DDEBUG=ON -DMOCK_TRADE=ON ..
+    else
+        print_status "Building with MOCK_TRADE disabled..."
+        cmake -DCMAKE_BUILD_TYPE=Debug -DDEBUG=ON ..
+    fi
 else
     print_status "Building in RELEASE mode..."
-    cmake -DCMAKE_BUILD_TYPE=Release ..
+    if [ "$MOCK_TRADE" = true ]; then
+        print_status "Building with MOCK_TRADE enabled..."
+        cmake -DCMAKE_BUILD_TYPE=Release -DMOCK_TRADE=ON ..
+    else
+        print_status "Building with MOCK_TRADE disabled..."
+        cmake -DCMAKE_BUILD_TYPE=Release ..
+    fi
 fi
 
 # Build the project

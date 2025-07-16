@@ -28,12 +28,16 @@ public:
         : resolver_(net::make_strand(ioc))
         , ws_(net::make_strand(ioc), ctx) {
     }
+    ~WebSocketClient() {
+        LOG_INFO(logger::g_logger, "WebSocketClient::closing websocket");
+        close();
+    }
 
     void connect(const std::string& host, const std::string& port, const std::string& target, MessageHandler handler) {
         host_ = host;
         target_ = target;
         message_handler_ = std::move(handler);
-        
+
         LOG_INFO(logger::g_logger, "WebSocketClient::connect() connecting to {} on port {}", host, port);
 
         resolver_.async_resolve(host, port,

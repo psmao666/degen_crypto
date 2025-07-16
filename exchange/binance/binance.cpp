@@ -1,6 +1,7 @@
 #include "binance.h"
 #include "model.h"
 #include "common/utils/https.h"
+#include "kitchen/strategy_manager.h"
 
 #include <fstream>
 #include <chrono>
@@ -12,7 +13,7 @@
 
 namespace degen_crypto { namespace exchange { namespace binance {
 
-auto BinanceExchange::on_start() -> bool {
+auto BinanceExchange::on_start(strategy_manager_t& strategy_manager) -> bool {
     LOG_INFO(g_logger, "{}::on_start() triggered", exchange_name());
     
     // Load API key from environment variables
@@ -75,7 +76,18 @@ auto BinanceExchange::on_start() -> bool {
         return false;
     }
     
+
+    LOG_INFO(g_logger, "{}::loading strategy manager callbacks...", exchange_name());
+    // Set up orderbook callbacks to notify strategies
+    for (auto& [symbol, orderbook] : order_books_) {
+        orderbook->set_orderbook_update_callback(
+            [&strategy_manager](const std::string& exchange_name, const std::string& symbol, const order_book::OrderBook& orderbook) {
+                strategy_manager.notify_orderbook_update(exchange_name, symbol, orderbook);
+            }
+        );
+    }
     LOG_INFO(g_logger, "{}::on_start() success, running now...", exchange_name());
+    
     run();
     
     return true;
@@ -111,8 +123,23 @@ auto BinanceExchange::realtime_price(const std::string_view& symbol) -> double {
     return std::stod(response.value()["price"].get<std::string>());
 }
 
+auto BinanceExchange::depth_snapshot(const std::string_view& symbol) -> void {
+    const auto response = https_.get<nlohmann::json>(exchange_host(), fmt::format("{}?symbol={}&limit=5000", api::DEPTH_SNAPSHOT_API, symbol), account_config_.api_secret());
+    if (!response.has_value()) {
+        throw std::runtime_error(fmt::format("Failed to get {} depth snapshot", symbol));
+    }
+    
+}
+
 auto BinanceExchange::trade(const std::string_view& symbol, const std::string_view& side, const std::string_view& type, const std::string_view& quantity, double max_slippage) -> bool {
-    return false;
+#ifdef MOCK_TRADE
+    return mock_trade_helper(symbol, side, type, quantity, max_slippage);
+#else
+    return trade_helper(symbol, side, type, quantity, max_slippage);
+#endif
+}
+
+auto BinanceExchange::trade_helper(const std::string_view& symbol, const std::string_view& side, const std::string_view& type, const std::string_view& quantity, double max_slippage) -> bool {
     const auto response = https_.get<nlohmann::json>(
         exchange_host(),
         fmt::format("{}?symbol={}&side={}&type={}&quantity={}", api::ORDER_API, symbol, side, type, quantity),
@@ -129,6 +156,11 @@ auto BinanceExchange::trade(const std::string_view& symbol, const std::string_vi
     }
 
     LOG_INFO(g_logger, "Order placed successfully: {} {} {}", symbol, side, quantity);
+    return true;
+}
+
+auto BinanceExchange::mock_trade_helper(const std::string_view& symbol, const std::string_view& side, const std::string_view& type, const std::string_view& quantity, double max_slippage) -> bool {
+    LOG_INFO(g_logger, "Mock trade placed successfully: {} {} {}", symbol, side, quantity);
     return true;
 }
 

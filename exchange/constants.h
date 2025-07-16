@@ -11,6 +11,7 @@ namespace binance {
         static const std::string TICKER_PRICE_API = "/api/v3/ticker/price";
         static const std::string ACCOUNT_API = "/api/v3/account";
         static const std::string ORDER_API = "/api/v3/order";
+        static const std::string DEPTH_SNAPSHOT_API = "/api/v3/depth";
     } // namespace api
 
     namespace constants {

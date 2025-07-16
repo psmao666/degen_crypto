@@ -61,6 +61,7 @@ set(SOURCES
     exchange/binance/binance.cpp
     common/utils/logger.cpp
     exchange/orderbook.cpp
+    kitchen/strategy_manager.cpp
 )
 
 # Add executable
