@@ -13,7 +13,7 @@
 
 namespace degen_crypto { namespace exchange { namespace binance {
 
-auto BinanceExchange::on_start(strategy_manager_t& strategy_manager) -> bool {
+auto BinanceExchange::on_start(strategy_manager_t& strategy_manager, exchange_onstart_cb position_handler) -> bool {
     LOG_INFO(g_logger, "{}::on_start() triggered", exchange_name());
     
     // Load API key from environment variables
@@ -86,6 +86,10 @@ auto BinanceExchange::on_start(strategy_manager_t& strategy_manager) -> bool {
             }
         );
     }
+    LOG_INFO(g_logger, "{}::loading portfolio now...", exchange_name());
+    const auto balances = this->account_balance();
+    position_handler(balances);
+    
     LOG_INFO(g_logger, "{}::on_start() success, running now...", exchange_name());
     
     run();
@@ -164,7 +168,7 @@ auto BinanceExchange::mock_trade_helper(const std::string_view& symbol, const st
     return true;
 }
 
-auto BinanceExchange::get_account_balance(const std::string_view& symbol) -> double {
+auto BinanceExchange::symbol_balance(const std::string_view& symbol) -> double {
     const auto response = https_.get<nlohmann::json>(
         exchange_host(),
         api::ACCOUNT_API,
@@ -188,6 +192,32 @@ auto BinanceExchange::get_account_balance(const std::string_view& symbol) -> dou
     }
     
     return total_balance;
+}
+
+auto BinanceExchange::account_balance() -> instrument_balance_t {
+    const auto response = https_.get<nlohmann::json>(
+        exchange_host(),
+        api::ACCOUNT_API,
+        account_config_.api_secret(),
+        {
+            {"X-MBX-APIKEY", account_config_.api_key()}
+        },
+        true
+    );
+    
+    if (!response.has_value()) {
+        throw std::runtime_error("Failed to get account balance");
+    }
+
+    instrument_balance_t balances;
+
+    for (const auto& balance : response.value()["balances"]) {
+        auto symbol = balance["asset"];
+        balances[symbol] += std::stod(balance["free"].get<std::string>());
+        balances[symbol] += std::stod(balance["locked"].get<std::string>());
+    }
+    
+    return balances;
 }
 
 auto BinanceExchange::subscribe_symbol(const std::string& symbol, const int level) -> void {
@@ -214,9 +244,7 @@ auto BinanceExchange::start_websocket(const std::shared_ptr<order_book_t>& order
 }
 
 auto BinanceExchange::run() -> void {
-    while (1) {
-        
-    }
+    while (1) {}
 }
 
 } // namespace binance

@@ -3,29 +3,29 @@
         "buy_levels": [
             {
                 "price": 0.9997,
-                "buy_capital_ratio": 0.1
+                "buy_capital_ratio": 1
             },
             {
                 "price": 0.9996,
-                "buy_capital_ratio": 10
+                "buy_capital_ratio": 0.2
             },
             {
                 "price": 0.9995,
-                "buy_capital_ratio": 20
+                "buy_capital_ratio": 0.3
             },
             {
                 "price": 0.9994,
-                "buy_capital_ratio": 30
+                "buy_capital_ratio": 0.4
             },
             {
                 "price": 0.9993,
-                "buy_capital_ratio": 40
+                "buy_capital_ratio": 0.5
             }
         ],
         "sell_levels": [
             {   
                 "price": 0.9999,
-                "sell_capital_ratio": 0.6
+                "sell_capital_ratio": 1
             },
             {   
                 "price": 1.0000,
