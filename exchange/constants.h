@@ -13,6 +13,29 @@ namespace binance {
         static const std::string ORDER_API = "/api/v3/order";
         static const std::string DEPTH_SNAPSHOT_API = "/api/v3/depth";
     } // namespace api
+    
+    namespace Enums {
+        namespace OrderType {
+            static const std::string LIMIT = "LIMIT";
+            static const std::string MARKET = "MARKET";
+            static const std::string STOP_LOSS = "STOP_LOSS";
+            static const std::string STOP_LOSS_LIMIT = "STOP_LOSS_LIMIT";
+            static const std::string TAKE_PROFIT = "TAKE_PROFIT";
+            static const std::string TAKE_PROFIT_LIMIT = "TAKE_PROFIT_LIMIT";
+            static const std::string LIMIT_MAKER = "LIMIT_MAKER";
+        }; // namespace OrderType
+
+        namespace OrderSide {
+            static const std::string BUY = "BUY";
+            static const std::string SELL = "SELL";
+        }; // namespace OrderSide
+
+        namespace TimeInForce {
+            static const std::string GTC = "GTC";
+            static const std::string IOC = "IOC";
+            static const std::string FOK = "FOK";
+        };
+    } // namespace enums
 
     namespace constants {
         const std::string EXCHANGE_NAME = "BINANCE";

@@ -23,10 +23,27 @@ public:
     void run() { }
 
     void on_orderbook_update_callback(const std::string& exchange_name, const std::string& symbol, const order_book_t& orderbook) {
-        LOG_INFO(logger::g_logger, "StrategyUSDCUSDTGrid::on_orderbook_update_callback() called");
+
+       if (orderbook.best_bid().price() <= config_.buy_levels[0].price && usdt_ > 0) {
+        usdc_ += usdt_ * config_.buy_levels[0].buy_capital_ratio / orderbook.best_bid().price();
+        usdt_ -= usdt_ * config_.buy_levels[0].buy_capital_ratio;
+    
+        LOG_INFO(logger::g_logger, "StrategyUSDCUSDTGrid::bid level hit at {}, current usdt: {}, current usdc: {}", orderbook.best_bid().price(), usdt_, usdc_);
+        
+        // buy
+       }
+       if (orderbook.best_ask().price() >= config_.sell_levels[0].price && usdc_ > 0) {
+        
+        usdt_ += usdc_ * orderbook.best_ask().price();
+        usdc_ = 0;
+        LOG_INFO(logger::g_logger, "StrategyUSDCUSDTGrid::ask level hit at {}, current usdt: {}, current usdc: {}", orderbook.best_ask().price(), usdt_, usdc_);
+        // sell
+       }
     }
 
 private:
+    double usdt_ = 1000;
+    double usdc_ = 0;
     USDCUSDT_Grid_Config config_;
 };
 

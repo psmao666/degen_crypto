@@ -4,6 +4,8 @@
 #include <memory>
 
 #include "exchange/binance/binance.h"
+#include "exchange/constants.h"
+#include "exchange/position_manager.h"
 #include "kitchen/strategy_manager.h"
 #include "common/utils/logger.h"
 
@@ -16,31 +18,26 @@ int main() { // NOLINT
     init_logger();
     
     LOG_INFO(g_logger, "Degen Crypto Bootstrapping...");
+
     // load glassnode
     LOG_INFO(g_logger, "Loading Glassnode APIs...");
     LOG_INFO(g_logger, "Done Loading Glassnode APIs!");
+
     // load strategy manager
     LOG_INFO(g_logger, "Loading Strategy Manager...");
     degen_crypto::kitchen::StrategyManager strategy_manager;
     LOG_INFO(g_logger, "Done Loading Strategy Manager!");
+
+    degen_crypto::exchange::PositionManager position_manager;
     // load exchanges
     LOG_INFO(g_logger, "Loading Exchanges...");
-
     LOG_INFO(g_logger, "Loading Binance...");
     std::unique_ptr<binance::BinanceExchange> binance_engine = std::make_unique<binance::BinanceExchange>();
         
-    std::jthread binance_worker([&binance_engine, &strategy_manager]() { 
-        binance_engine->on_start(strategy_manager); 
-        
-        // Set up orderbook callbacks to notify strategies
-        for (auto& [symbol, orderbook] : binance_engine->order_books_) {
-            orderbook->set_orderbook_update_callback(
-                [&strategy_manager](const std::string& exchange_name, const std::string& symbol, const order_book::OrderBook& orderbook) {
-                    strategy_manager.notify_orderbook_update(exchange_name, symbol, orderbook);
-                }
-            );
-        }
-
+    std::jthread binance_worker([&binance_engine, &strategy_manager, &position_manager]() { 
+        binance_engine->on_start(strategy_manager, [&position_manager](const std::unordered_map<std::string, double>& balances){
+            position_manager.add_exchange(binance::constants::EXCHANGE_NAME, balances);
+        }); 
     });
 
 
