@@ -74,8 +74,8 @@ public:
 
 public:
 
-    void init(const instrument_balance_t& balances) {
-        LOG_INFO(g_logger, "on initing balance");
+    void init(const std::string& exchange_name, const instrument_balance_t& balances) {
+        LOG_INFO(g_logger, "on initing {} balance", exchange_name);
         for (const auto& [symbol, balance] : balances) {
             if (balance > 0) {
                 LOG_INFO(g_logger, "{}:{}", symbol, balance);

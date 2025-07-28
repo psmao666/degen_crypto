@@ -18,7 +18,7 @@ public:
     ~PositionManager() = default;
 
     void add_exchange(const std::string& exchange_name, const instrument_balance_t& balances) {
-        portfolios[exchange_name].init(balances);
+        portfolios[exchange_name].init(exchange_name, balances);
     }
 
     portfolio_t& portfolio() { return portfolios; }

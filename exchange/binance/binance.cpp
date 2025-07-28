@@ -1,4 +1,5 @@
 #include "binance.h"
+#include "exchange/constants.h"
 #include "model.h"
 #include "common/utils/https.h"
 #include "kitchen/strategy_manager.h"
@@ -89,7 +90,7 @@ auto BinanceExchange::on_start(strategy_manager_t& strategy_manager, exchange_on
     LOG_INFO(g_logger, "{}::loading portfolio now...", exchange_name());
     const auto balances = this->account_balance();
     position_handler(balances);
-    
+
     LOG_INFO(g_logger, "{}::on_start() success, running now...", exchange_name());
     
     run();
@@ -135,7 +136,7 @@ auto BinanceExchange::depth_snapshot(const std::string_view& symbol) -> void {
     
 }
 
-auto BinanceExchange::trade(const std::string_view& symbol, const std::string_view& side, const std::string_view& type, const std::string_view& quantity, double max_slippage) -> bool {
+auto BinanceExchange::trade(const std::string& symbol, const std::string& side, const std::string& type, const std::string& quantity, double max_slippage) -> bool {
 #ifdef MOCK_TRADE
     return mock_trade_helper(symbol, side, type, quantity, max_slippage);
 #else
@@ -143,15 +144,21 @@ auto BinanceExchange::trade(const std::string_view& symbol, const std::string_vi
 #endif
 }
 
-auto BinanceExchange::trade_helper(const std::string_view& symbol, const std::string_view& side, const std::string_view& type, const std::string_view& quantity, double max_slippage) -> bool {
-    const auto response = https_.get<nlohmann::json>(
+auto BinanceExchange::trade_helper(const std::string& symbol, const std::string& side, const std::string& type, const std::string& quantity, double max_slippage) -> bool {
+    // Build the POST body with all required parameters
+    auto timestamp = common::utils::get_current_ms_epoch();
+    std::string body = fmt::format("symbol={}&side={}&type={}&quantity={}&timestamp={}", symbol, side, type, quantity, timestamp);
+    std::string signature = common::utils::generate_signature(body, account_config_.api_secret());
+    body += fmt::format("&signature={}", signature);
+    const auto response = https_.post<nlohmann::json>(
         exchange_host(),
-        fmt::format("{}?symbol={}&side={}&type={}&quantity={}", api::ORDER_API, symbol, side, type, quantity),
+        api::ORDER_API,
+        body,
         account_config_.api_secret(),
         {
             {"X-MBX-APIKEY", account_config_.api_key()}
         },
-        true
+        false // signature already handled
     );
 
     if (!response.has_value()) {
@@ -244,7 +251,12 @@ auto BinanceExchange::start_websocket(const std::shared_ptr<order_book_t>& order
 }
 
 auto BinanceExchange::run() -> void {
-    while (1) {}
+        // trade(constants::USDC_USDT, 
+        //       Enums::OrderSide::BUY, 
+        //       Enums::OrderType::MARKET, 
+        //       "10", 
+        //       0);
+        // while (1) {};
 }
 
 } // namespace binance
