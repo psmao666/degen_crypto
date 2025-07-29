@@ -32,11 +32,13 @@ int main() { // NOLINT
     // load exchanges
     LOG_INFO(g_logger, "Loading Exchanges...");
     LOG_INFO(g_logger, "Loading Binance...");
-    std::unique_ptr<binance::BinanceExchange> binance_engine = std::make_unique<binance::BinanceExchange>();
+    binance::BinanceExchange binance_engine;
         
     std::jthread binance_worker([&binance_engine, &strategy_manager, &position_manager]() { 
-        binance_engine->on_start(strategy_manager, [&position_manager](const std::unordered_map<std::string, double>& balances){
+        binance_engine.on_start(strategy_manager, [&position_manager, &strategy_manager, &binance_engine](const std::unordered_map<std::string, double>& balances){
             position_manager.add_exchange(binance::constants::EXCHANGE_NAME, balances);
+            strategy_manager.set_position_manager(&position_manager);
+            strategy_manager.set_exchange_engine(&binance_engine);
         }); 
     });
 

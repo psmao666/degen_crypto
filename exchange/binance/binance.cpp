@@ -256,7 +256,7 @@ auto BinanceExchange::run() -> void {
         //       Enums::OrderType::MARKET, 
         //       "10", 
         //       0);
-        // while (1) {};
+        while (1) {};
 }
 
 } // namespace binance

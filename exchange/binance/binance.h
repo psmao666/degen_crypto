@@ -5,14 +5,16 @@
 #include <atomic>
 
 #include "exchange/base_exchange.h"
+#include "kitchen/strategy_manager.h"
 #include "model.h"
 #include "exchange/constants.h"
 #include "common/utils/logger.h"
 #include "common/utils/websocket.h"
 #include "exchange/orderbook.h"
-#include "kitchen/strategy_manager.h"
 
 using namespace degen_crypto::logger;
+
+namespace degen_crypto { namespace kitchen { class StrategyManager; }}
 
 namespace degen_crypto { namespace exchange { namespace binance {
 
@@ -49,10 +51,12 @@ public:
     }
 
 private:
-    auto realtime_price(const std::string_view& symbol) -> double;
     auto trade_helper(const std::string& symbol, const std::string& side, const std::string& type, const std::string& quantity, double max_slippage) -> bool;
     auto mock_trade_helper(const std::string_view& symbol, const std::string_view& side, const std::string_view& type, const std::string_view& quantity, double max_slippage) -> bool;
     auto run() -> void;
+
+public:
+    auto realtime_price(const std::string_view& symbol) -> double;
     auto trade(const std::string& symbol, const std::string& side, const std::string& type, const std::string& quantity, double max_slippage) -> bool;
     auto symbol_balance(const std::string_view& symbol) -> double;
     auto account_balance() -> instrument_balance_t;
