@@ -72,6 +72,11 @@ public:
         positions_[symbol].sub(amount);
     }
 
+    inline quantity_t get_position(const symbol_t& symbol) {
+        std::lock_guard<std::mutex> lock(mutex_);
+        return positions_[symbol].holding_amount();
+    }
+
 public:
 
     void init(const std::string& exchange_name, const instrument_balance_t& balances) {
@@ -85,7 +90,6 @@ public:
     }
 
     inline auto positions() const -> const positions_t& { return this->positions_; }
-
 private:
     account_config_t account_config_;
     positions_t positions_;

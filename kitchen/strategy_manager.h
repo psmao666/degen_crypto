@@ -6,7 +6,11 @@
 #include <algorithm>
 #include <nlohmann/json_fwd.hpp>
 #include "common/utils/logger.h"
+#include "exchange/binance/binance.h"
 #include "exchange/orderbook.h"
+#include "exchange/position_manager.h"
+
+namespace degen_crypto { namespace exchange { namespace binance { class BinanceExchange; } } }
 
 namespace degen_crypto { namespace kitchen {
 
@@ -20,6 +24,9 @@ class StrategyManager;
 class IStrategy {
 public:
     typedef exchange::order_book::OrderBook order_book_t;
+    using position_mgr_t = exchange::PositionManager;
+    using exchange_engine_t = exchange::binance::BinanceExchange;
+
 public:
     virtual ~IStrategy() = default;
     virtual bool on_start() = 0;
@@ -29,6 +36,15 @@ public:
     virtual void run() = 0;
     virtual void on_orderbook_update_callback(const std::string& exchange_name, const std::string& symbol, const order_book_t& orderbook) = 0;
 
+    void set_position_mgr(position_mgr_t* that) { pos_mgr_ = that; }
+    position_mgr_t& position_manager() { return *pos_mgr_; }
+
+    void set_exchange_engine(exchange_engine_t* that) { exchange_engine_ = that; }
+    exchange_engine_t& exchange_engine() { return *exchange_engine_; }
+
+private:
+    position_mgr_t* pos_mgr_{nullptr};
+    exchange_engine_t* exchange_engine_{nullptr};
 };
 
 /**
@@ -53,6 +69,7 @@ public:
 protected:
     auto derived() -> Derived& { return static_cast<Derived&>(*this); }
     auto derived() const -> const Derived& { return static_cast<const Derived&>(*this); }
+
 };
 
 /**
@@ -61,6 +78,9 @@ protected:
 class StrategyManager {
 public:
     typedef exchange::order_book::OrderBook order_book_t;
+    using postition_mgr_t = exchange::PositionManager;
+    using exchange_engine_t = exchange::binance::BinanceExchange;
+
 public:
     StrategyManager();
     ~StrategyManager() {
@@ -134,6 +154,18 @@ public:
         strategies_.erase(it);
         LOG_INFO(logger::g_logger, "Strategy '{}' unhooked successfully.", strategy_name);
         return true;
+    }
+
+    inline void set_position_manager(postition_mgr_t* that) { \
+        for (auto& strategy: strategies_) {
+            strategy->set_position_mgr(that);
+        } 
+    }
+
+    inline void set_exchange_engine(exchange_engine_t* that) { \
+        for (auto& strategy: strategies_) {
+            strategy->set_exchange_engine(that);
+        } 
     }
 
 private:
