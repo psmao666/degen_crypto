@@ -18,6 +18,10 @@
         {
             "symbol": "fdusdusdt",
             "level": 5
+        },
+        {
+            "symbol": "usd1usdt",
+            "level": 5
         }
     ]
 } 

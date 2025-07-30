@@ -56,11 +56,13 @@ namespace binance {
         const std::string BTC_USDT = "BTCUSDT";
         const std::string USDC_USDT = "USDCUSDT";
         const std::string FDUSD_USDT = "FDUSDUSDT";
-
+        const std::string USD1_USDT = "USD1USDT";
 
         // currency
         const std::string USDT = "USDT";
         const std::string USDC = "USDC";
+        const std::string USD1 = "USD1";
+        const std::string FDUSD = "FDUSD";
         const std::string BTC = "BTC";
         const std::string ETH = "ETH";
         const std::string SOL = "SOL";
@@ -73,7 +75,6 @@ namespace binance {
         const std::string LTC = "LTC";  
         const std::string BCH = "BCH";
         const std::string XMR = "XMR";
-        const std::string FDUSD = "FDUSD";
     } // namespace constants
 
 } // namespace binance
