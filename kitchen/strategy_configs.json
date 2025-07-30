@@ -28,5 +28,19 @@
                 "sell_capital_ratio": 1
             }
         ]
+    },
+    "FDUSD-USDT_Grid": {
+        "buy_levels": [
+            {
+                "price": 0.9978,
+                "buy_capital_ratio": 1
+            }
+        ],
+        "sell_levels": [
+            {   
+                "price": 0.9983,
+                "sell_capital_ratio": 1
+            }
+        ]
     }
 }

@@ -95,12 +95,14 @@ public:
      */
     void notify_orderbook_update(const std::string& exchange_name, const std::string& symbol, const order_book_t& orderbook) {
         for (auto& strategy : strategies_) {
-            try {
-                strategy->on_orderbook_update_callback(exchange_name, symbol, orderbook);
-            } catch (const std::exception& e) {
-                LOG_ERROR(logger::g_logger, "Strategy '{}' failed in orderbook callback: {}", 
-                         strategy->strategy_name(), e.what());
-            }
+            std::jthread([&](){
+                try {
+                    strategy->on_orderbook_update_callback(exchange_name, symbol, orderbook);
+                } catch (const std::exception& e) {
+                    LOG_ERROR(logger::g_logger, "Strategy '{}' failed in orderbook callback: {}", 
+                            strategy->strategy_name(), e.what());
+                }
+            });
         }
     }
 
