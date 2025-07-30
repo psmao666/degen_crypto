@@ -1,4 +1,5 @@
 #include "strategy_manager.h"
+#include "kitchen/arbitrage/fdusd_usdt_grid.h"
 #include "kitchen/strategy_config.h"
 #include "common/utils/logger.h"
 
@@ -23,6 +24,7 @@ StrategyManager::StrategyManager() {
     try {
         strategy_config_file >> strategy_config;
         hook<arbitrage::StrategyUSDCUSDTGrid>(strategy_config["USDC-USDT_Grid"]);
+        hook<arbitrage::StrategyFDUSDUSDTGrid>(strategy_config["FDUSD-USDT_Grid"]);
     } catch (const std::exception& e) {
         LOG_ERROR(g_logger, "Failed to parse strategy config: {}", e.what());
         throw std::runtime_error("Failed to parse strategy config");

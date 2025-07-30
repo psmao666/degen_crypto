@@ -55,6 +55,7 @@ namespace binance {
         // currency pair
         const std::string BTC_USDT = "BTCUSDT";
         const std::string USDC_USDT = "USDCUSDT";
+        const std::string FDUSD_USDT = "FDUSDUSDT";
 
 
         // currency

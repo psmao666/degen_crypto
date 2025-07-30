@@ -14,6 +14,10 @@
         {
             "symbol": "usdcusdt",
             "level": 5
+        },
+        {
+            "symbol": "fdusdusdt",
+            "level": 5
         }
     ]
 } 
