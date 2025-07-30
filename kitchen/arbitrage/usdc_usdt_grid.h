@@ -33,10 +33,8 @@ public:
         auto& engine = exchange_engine();
         const auto best_bid = orderbook.best_bid().price();
         const auto best_ask = orderbook.best_ask().price();
-        LOG_INFO(logger::g_logger, "StrategyUSDCUSDTGrid::Current portfolio: [usdc: {}, usdt: {}], best bid: {}, best ask: {}", usdc, usdt, best_bid, best_ask);
 
         if (best_ask <= config_.buy_levels[0].price && usdt > 0) {
-            LOG_INFO(logger::g_logger, "StrategyUSDCUSDTGrid::ask level hit at {}, current usdt: {}, current usdc: {}", best_ask, usdt, usdc);
             const auto quantity = std::round(usdt * config_.buy_levels[0].buy_capital_ratio / best_ask);
             if (quantity <= 6) {
                 LOG_INFO(logger::g_logger, "StrategyUSDCUSDTGrid::Not enough notional, not buying.");
