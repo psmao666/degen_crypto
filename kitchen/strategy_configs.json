@@ -2,7 +2,7 @@
     "USDC-USDT_Grid": {
         "buy_levels": [
             {
-                "price": 0.9996,
+                "price": 0.9997,
                 "buy_capital_ratio": 1
             },
             {
@@ -38,7 +38,7 @@
         ],
         "sell_levels": [
             {   
-                "price": 0.9983,
+                "price": 0.9982,
                 "sell_capital_ratio": 1
             }
         ]

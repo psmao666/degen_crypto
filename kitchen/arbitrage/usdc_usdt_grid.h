@@ -37,6 +37,7 @@ public:
         auto& engine = exchange_engine();
         const auto best_bid = orderbook.best_bid().price();
         const auto best_ask = orderbook.best_ask().price();
+        // LOG_INFO(logger::g_logger, "{}::current best bid at {}, current best ask at {}, usdt: {}, usdc: {}", strategy_name(), best_bid, best_ask, usdt, usdc); 
 
         if (best_ask <= config_.buy_levels[0].price && usdt > 0) {
             const auto quantity = static_cast<int>(usdt * config_.buy_levels[0].buy_capital_ratio / best_ask);
