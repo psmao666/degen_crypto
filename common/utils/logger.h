@@ -41,7 +41,7 @@ inline void init_logger() {
         std::vector{std::move(file_sink), std::move(console_sink)},
         quill::PatternFormatterOptions{"%(time) [%(thread_id)] %(short_source_location:<28) "
                                      "LOG_%(log_level:<9) %(logger:<12) %(message)",
-                                     "%H:%M:%S.%Qns", quill::Timezone::GmtTime});
+                                     "%H:%M:%S.%Qns", quill::Timezone::LocalTime});
 }
 
 } // namespace logger
