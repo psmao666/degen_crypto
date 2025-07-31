@@ -17,8 +17,14 @@ public:
     PositionManager() = default;
     ~PositionManager() = default;
 
-    void add_exchange(const std::string& exchange_name, const instrument_balance_t& balances) {
-        portfolios[exchange_name].init(exchange_name, balances);
+    inline void add_exchange(const std::string& exchange_name, const instrument_balance_t& balances) {
+        LOG_INFO(g_logger, "on initing {} balance", exchange_name);
+        portfolios[exchange_name].init(balances);
+    }
+    
+    inline void refresh(const std::string& exchange_name, const instrument_balance_t& balances) {
+        LOG_INFO(g_logger, "on refreshing {} balance", exchange_name);
+        portfolios[exchange_name].refresh(balances);
     }
 
     portfolio_t& portfolio() { return portfolios; }

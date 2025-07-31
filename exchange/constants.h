@@ -79,6 +79,13 @@ namespace binance {
 
 } // namespace binance
 
+namespace bybit {
+
+    namespace constants {
+        const std::string EXCHANGE_NAME = "BYBIT";
+        
+    }
+} // namespace bybit
 
 } // namespace exchange
 } // namespace degen_crypto
