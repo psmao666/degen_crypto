@@ -65,8 +65,8 @@ public:
 
         if (best_bid >= config_.sell_levels[0].price && usd1 > 6) {
             const auto quantity = static_cast<int>(usd1);
-            LOG_INFO(logger::g_logger, "{}::bid level hit at {}, current usdt: {}, current usdc: {}", strategy_name(), best_bid, usdt, usd1);
-            if (engine.trade(exchange::binance::constants::USDC_USDT, 
+            LOG_INFO(logger::g_logger, "{}::bid level hit at {}, current usdt: {}, current usd1: {}", strategy_name(), best_bid, usdt, usd1);
+            if (engine.trade(exchange::binance::constants::USD1_USDT, 
                             exchange::binance::Enums::OrderSide::SELL, 
                             exchange::binance::Enums::OrderType::MARKET, 
                             std::to_string(quantity),
@@ -76,7 +76,7 @@ public:
                     portfolio.sub_position(USD1, quantity);
                     usdt += quantity * best_bid;
                     usd1 -= quantity;
-                    LOG_INFO(logger::g_logger, "{}::Sell USDC Order filled, current usdt: {}, current usdc: {}", strategy_name(), usdt, usd1);
+                    LOG_INFO(logger::g_logger, "{}::Sell USDC Order filled, current usdt: {}, current usd1: {}", strategy_name(), usdt, usd1);
             }
             else {
                 LOG_ERROR(logger::g_logger, "{}::Order failed to fill", strategy_name());

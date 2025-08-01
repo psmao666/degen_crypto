@@ -44,6 +44,7 @@ public:
     
     inline void add(const quantity_t& amount) noexcept { holding_amount_ += amount; }
     inline void sub(const quantity_t& amount) noexcept { holding_amount_ -= amount; }
+    inline void set(const quantity_t& amount) noexcept { holding_amount_ = amount; }
 
 private:
     quantity_t holding_amount_{0};
@@ -72,6 +73,11 @@ public:
         positions_[symbol].sub(amount);
     }
 
+    inline void set_position(const symbol_t& symbol, const quantity_t& amount) noexcept {
+        std::lock_guard<std::mutex> lock(mutex_);
+        positions_[symbol].set(amount);
+    }
+
     inline quantity_t get_position(const symbol_t& symbol) {
         std::lock_guard<std::mutex> lock(mutex_);
         return positions_[symbol].holding_amount();
@@ -79,8 +85,7 @@ public:
 
 public:
 
-    void init(const std::string& exchange_name, const instrument_balance_t& balances) {
-        LOG_INFO(g_logger, "on initing {} balance", exchange_name);
+    inline void init(const instrument_balance_t& balances) {
         for (const auto& [symbol, balance] : balances) {
             if (balance > 0) {
                 LOG_INFO(g_logger, "{}:{}", symbol, balance);
@@ -88,6 +93,15 @@ public:
             }
         }
     }
+    
+    inline void refresh(const instrument_balance_t& balances) {
+        for (const auto& [symbol, balance] : balances) {
+            if (balance > 0) {
+                set_position(symbol, balance);
+            }
+        }
+    }
+
 
     inline auto positions() const -> const positions_t& { return this->positions_; }
 private:

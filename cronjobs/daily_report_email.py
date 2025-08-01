@@ -47,6 +47,10 @@ attach_file(msg, log_path, log_filename)
 trades_log_path =  os.path.join(os.path.dirname(os.path.dirname(__file__)), "logs", today, "trades.log")
 attach_file(msg, trades_log_path, 'trades.log')
 
+# Attach errors.log file from the same directory as this script
+errors_log_path =  os.path.join(os.path.dirname(os.path.dirname(__file__)), "logs", today, "errors.log")
+attach_file(msg, errors_log_path, 'errors.log')
+
 # Send the email
 try:
     with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:

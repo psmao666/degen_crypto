@@ -14,7 +14,7 @@
 
 namespace degen_crypto { namespace exchange { namespace binance {
 
-auto BinanceExchange::on_start(strategy_manager_t& strategy_manager, exchange_onstart_cb position_handler) -> bool {
+auto BinanceExchange::on_start(strategy_manager_t& strategy_manager, exchange_onstart_cb handler, exchange_refresh_handler refresher) -> bool {
     LOG_INFO(g_logger, "{}::on_start() triggered", exchange_name());
     
     // Load API key from environment variables
@@ -88,8 +88,19 @@ auto BinanceExchange::on_start(strategy_manager_t& strategy_manager, exchange_on
         );
     }
     LOG_INFO(g_logger, "{}::loading portfolio now...", exchange_name());
-    const auto balances = this->account_balance();
-    position_handler(balances);
+    auto balances = account_balance();
+    handler(balances);
+
+    auto refresh_handler = [&](){
+        while (1) {
+            auto balances = account_balance();
+            refresher(balances);
+            std::this_thread::sleep_for(std::chrono::seconds(30));
+        }
+    };
+    
+    std::jthread refresh_worker(refresh_handler);
+     
 
     LOG_INFO(g_logger, "{}::on_start() success, running now...", exchange_name());
     

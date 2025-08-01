@@ -13,6 +13,7 @@ run at root dir for this project:
 
 ### Run in debug mode
 --debug            
+-e <binance/bybit>
 
 ## ENVIRONMENT VARIABLES
 

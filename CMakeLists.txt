@@ -44,25 +44,48 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(json)
 
-# Add Quil library
+# Add Quill library
 FetchContent_Declare(
     quill
     GIT_REPOSITORY https://github.com/odygrd/quill.git
-    GIT_TAG v10.0.0
+    GIT_TAG v10.0.1
 )
 FetchContent_MakeAvailable(quill)
 
-# Set output directories
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/release)
+# Add options for exchanges
+option(BINANCE "Build with Binance exchange" OFF)
+option(BYBIT "Build with Bybit exchange" OFF)
+
+if(BINANCE)
+    message(STATUS "Building for Binance exchange")
+elseif(BYBIT)
+    message(STATUS "Building for Bybit exchange")
+else()
+    message(FATAL_ERROR "No exchange defined. Please configure with -DBINANCE=ON or -DBYBIT=ON.")
+endif()
+
+# Set output directories based on build type and exchange
+if(BINANCE)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR}/build/binance/debug)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR}/build/binance/release)
+elseif(BYBIT)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR}/build/bybit/debug)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR}/build/bybit/release)
+endif()
 
 # Add source files
 set(SOURCES
     main.cpp
-    exchange/binance/binance.cpp
     common/utils/logger.cpp
     exchange/orderbook.cpp
     kitchen/strategy_manager.cpp
 )
+
+if(BINANCE)
+    list(APPEND SOURCES exchange/binance/binance.cpp)
+elseif(BYBIT)
+    list(APPEND SOURCES exchange/bybit/bybit.cpp)
+endif()
 
 # Add executable
 add_executable(${PROJECT_NAME} ${SOURCES})
@@ -82,15 +105,36 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${boost_SOURCE_DIR}
 )
 
-# Add compiler flags for debugging
-target_compile_options(${PROJECT_NAME} PRIVATE 
-    -Wno-deprecated-declarations
-    -g                    # Generate debug information
-    -O0                   # Disable optimization for better debugging
-    -fno-omit-frame-pointer  # Keep frame pointers for better stack traces
-)
+if(DEBUG)
+    # Add compiler flags for debugging
+    target_compile_options(${PROJECT_NAME} PRIVATE 
+        -Wno-deprecated-declarations
+        -g                    # Generate debug iSnformation
+        -O0                   # Disable optimization for better debugging
+        -fno-omit-frame-pointer  # Keep frame pointers for better stack traces
+    )
+else()
+    target_compile_options(${PROJECT_NAME} PRIVATE 
+    -O3                        # Maximum optimization
+    -march=native              # Optimize for the host CPU
+    -flto                      # Link Time Optimization
+    -DNDEBUG                   # Disable assert()
+    )
+endif()
 
 # Handle DEBUG definition
 if(DEBUG)
     target_compile_definitions(${PROJECT_NAME} PRIVATE DEBUG)
 endif() 
+
+# ADD EXCHANGE def
+
+if(BINANCE)    
+    target_compile_options(${PROJECT_NAME} PRIVATE
+        -DBINANCE
+    )
+elseif(BYBIT)
+    target_compile_options(${PROJECT_NAME} PRIVATE
+        -DBYBIT
+    )
+endif()

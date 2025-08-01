@@ -14,10 +14,6 @@ private:
 
     }
 
-public:
-    virtual void init() override {
-            
-    }
 };
 
 } // namespace binance

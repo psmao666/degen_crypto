@@ -25,6 +25,7 @@ using order_book_t = order_book::OrderBook;
 using strategy_manager_t = degen_crypto::kitchen::StrategyManager;
 using instrument_balance_t = std::unordered_map<std::string, double>;
 using exchange_onstart_cb = std::function<void(const instrument_balance_t&)>;
+using exchange_refresh_handler = std::function<void(const instrument_balance_t&)>;
 
 public:
     BinanceExchange() = default;
@@ -33,7 +34,7 @@ public:
         on_shutdown();
     }
 
-    auto on_start(strategy_manager_t&, exchange_onstart_cb) -> bool;
+    auto on_start(strategy_manager_t&, exchange_onstart_cb, exchange_refresh_handler) -> bool;
     auto on_shutdown() -> bool;
     auto ping_exchange() -> bool;
     auto get_server_time() -> std::chrono::system_clock::time_point;
