@@ -64,9 +64,14 @@ else()
     message(FATAL_ERROR "No exchange defined. Please configure with -DBINANCE=ON or -DBYBIT=ON.")
 endif()
 
-# Set output directories based on build type
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR}/build/debug)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR}/build/release)
+# Set output directories based on build type and exchange
+if(BINANCE)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR}/build/binance/debug)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR}/build/binance/release)
+elseif(BYBIT)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR}/build/bybit/debug)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR}/build/bybit/release)
+endif()
 
 # Add source files
 set(SOURCES

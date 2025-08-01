@@ -23,7 +23,6 @@ public:
     }
     
     inline void refresh(const std::string& exchange_name, const instrument_balance_t& balances) {
-        LOG_INFO(g_logger, "on refreshing {} balance", exchange_name);
         portfolios[exchange_name].refresh(balances);
     }
 

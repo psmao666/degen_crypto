@@ -7,6 +7,7 @@
 // strategies
 #include "kitchen/arbitrage/usdc_usdt_grid.h"
 #include "kitchen/arbitrage/usd1_usdt_grid.h"
+#include "kitchen/arbitrage/usdc_usdt_grid_2.h"
 
 using namespace degen_crypto::logger;
 
@@ -24,9 +25,10 @@ StrategyManager::StrategyManager() {
     nlohmann::json strategy_config;
     try {
         strategy_config_file >> strategy_config;
-        hook<arbitrage::StrategyUSDCUSDTGrid>(strategy_config["USDC-USDT_Grid"]);
-        hook<arbitrage::StrategyFDUSDUSDTGrid>(strategy_config["FDUSD-USDT_Grid"]);
-        hook<arbitrage::StrategyUSD1USDTGrid>(strategy_config["USD1-USDT_Grid"]);
+        // hook<arbitrage::StrategyUSDCUSDTGrid>(strategy_config["USDC-USDT_Grid"]);
+        //hook<arbitrage::StrategyFDUSDUSDTGrid>(strategy_config["FDUSD-USDT_Grid"]);
+        //hook<arbitrage::StrategyUSD1USDTGrid>(strategy_config["USD1-USDT_Grid"]);
+        hook<arbitrage::StrategyUSDCUSDTGrid_2>(strategy_config["USDC-USDT_Grid_2"]);
     } catch (const std::exception& e) {
         LOG_ERROR(g_logger, "Failed to parse strategy config: {}", e.what());
         throw std::runtime_error("Failed to parse strategy config");

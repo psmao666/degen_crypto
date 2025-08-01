@@ -48,5 +48,21 @@ struct USDCUSDT_Grid_Config {
         return true;
     }
 };
+
+struct USDCUSDT_Grid_2_Config {
+    std::vector<Buy_Level> buy_levels;
+
+    bool load_params(const nlohmann::json& params) {
+        if (params.contains("buy_levels")) {
+            for (const auto& level : params["buy_levels"]) {
+                buy_levels.emplace_back();
+                buy_levels.back().from_json(level);
+            }
+        } else {
+            return false;
+        }
+        return true;
+    }
+};
 } // namespace kitchen
 } // namespace degen_crypto

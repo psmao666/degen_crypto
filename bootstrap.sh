@@ -60,19 +60,19 @@ if [ "$DEBUG_BUILD" = true ]; then
     print_status "Building in DEBUG mode with GDB support..."
     if [ "$MOCK_TRADE" = true ]; then
         print_status "Building with MOCK_TRADE enabled..."
-        cmake -DCMAKE_BUILD_TYPE=Debug -DDEBUG=ON -DMOCK_TRADE=ON $EXCHANGE_CMAKE_FLAG ../..
+        cmake -DCMAKE_BUILD_TYPE=Debug -DDEBUG=ON -DMOCK_TRADE=ON $EXCHANGE_CMAKE_FLAG ../../..
     else
         print_status "Building with MOCK_TRADE disabled..."
-        cmake -DCMAKE_BUILD_TYPE=Debug -DDEBUG=ON $EXCHANGE_CMAKE_FLAG ../..
+        cmake -DCMAKE_BUILD_TYPE=Debug -DDEBUG=ON $EXCHANGE_CMAKE_FLAG ../../..
     fi
 else
     print_status "Building in RELEASE mode..."
     if [ "$MOCK_TRADE" = true ]; then
         print_status "Building with MOCK_TRADE enabled..."
-        cmake -DCMAKE_BUILD_TYPE=Release -DMOCK_TRADE=ON $EXCHANGE_CMAKE_FLAG ../..
+        cmake -DCMAKE_BUILD_TYPE=Release -DMOCK_TRADE=ON $EXCHANGE_CMAKE_FLAG ../../..
     else
         print_status "Building with MOCK_TRADE disabled..."
-        cmake -DCMAKE_BUILD_TYPE=Release $EXCHANGE_CMAKE_FLAG ../..
+        cmake -DCMAKE_BUILD_TYPE=Release $EXCHANGE_CMAKE_FLAG ../../..
     fi
 fi
 
@@ -83,7 +83,7 @@ cmake --build .
 print_status "Build complete! Binary is located in $BUILD_DIR/"
 
 # Return to original directory
-cd ../..
+cd ../../..
 
 # Make the binary executable
 chmod +x "$BUILD_DIR/degen_crypto"
