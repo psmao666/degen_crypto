@@ -6,6 +6,9 @@
 #include "../../exchange/constants.h"
 #include "quill/LogMacros.h"
 
+#include <fstream>
+#include <stdexcept>
+#include <mutex>
 #include <unordered_set>
 #include <common/utils/logger.h>
 #include <common/utils/compare_case_insensitive.h>
@@ -18,9 +21,45 @@ private:
     static constexpr int multiplier = 10'000;
 
 public:
-    StrategyUSDCUSDTGrid_2() = default;
-    ~StrategyUSDCUSDTGrid_2() = default;
+    StrategyUSDCUSDTGrid_2() {
+        std::ifstream pos_file(exchange::binance::constants::STRATEGY_USDC_USDT_GRID2_POS_FILE);
+        if (!pos_file.is_open()) {
+            throw std::runtime_error("Failed to open yesterday pos file\n");
+        }
+        int price_level;
+        double quantity;
+        while (pos_file >> price_level >> quantity) {
+            std::cout << price_level << ' ' << quantity << std::endl;
+            if (price_level >= 0 && price_level < static_cast<int>(positions_.size())) {
+                positions_[price_level] = quantity;
+            }
+        }
+        positions_writer_ = std::jthread([this]() {
+            while (1) {
+                std::this_thread::sleep_for(std::chrono::seconds(5));
+                this->write_positions();
+            }
+        });
+    }
+    ~StrategyUSDCUSDTGrid_2() {
+        write_positions();
+    }
 
+    inline void write_positions() {
+        std::lock_guard<std::mutex> lock(positions_mutex_);
+
+        std::ofstream pos_file(exchange::binance::constants::STRATEGY_USDC_USDT_GRID2_POS_FILE, std::ios::trunc);
+        if (!pos_file.is_open()) {
+            LOG_ERROR(logger::g_logger, "{}: Failed to open pos file for writing", strategy_name());
+            return;
+        }
+
+        for (size_t i = 0; i < positions_.size(); ++i) {
+            if (positions_[i] > 1e-6) {
+                pos_file << i << " " << positions_[i] << "\n";
+            }
+        }
+    }
     bool on_start() { run(); return true; }
     bool on_shutdown() { return true; }
     bool load_params(const nlohmann::json& params) { 
@@ -99,8 +138,10 @@ public:
     }
 
 private:
-    USDCUSDT_Grid_2_Config config_;
+    Grid_2_Config config_;
     std::array<double, 20000> positions_;
+    std::mutex positions_mutex_;
+    std::jthread positions_writer_;
 };
 
 

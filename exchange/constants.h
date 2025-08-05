@@ -51,6 +51,8 @@ namespace binance {
         const std::string EXCHANGE_SUBSCRIPTIONS_KEY = "subscriptions";
         const std::string EXCHANGE_SUBSCRIPTION_SYMBOL_KEY = "symbol";
         const std::string EXCHANGE_SUBSCRIPTION_LEVEL_KEY = "level";
+        
+        const std::string STRATEGY_USDC_USDT_GRID2_POS_FILE = "kitchen/arbitrage/usdc_usdt_grid_2.pos";
 
         // currency pair
         const std::string BTC_USDT = "BTCUSDT";

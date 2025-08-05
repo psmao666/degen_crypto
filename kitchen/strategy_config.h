@@ -24,11 +24,20 @@ struct Sell_Level {
     }
 };
 
-struct USDCUSDT_Grid_Config {
+struct IStrategyConfig {
+    std::optional<double> money_cap_;
+};
+
+struct Grid_Config : IStrategyConfig{
     std::vector<Buy_Level> buy_levels;
     std::vector<Sell_Level> sell_levels;
 
     bool load_params(const nlohmann::json& params) {
+        if (params.contains("money_cap")) {
+            money_cap_ = params["buy_levels"].get<double>();
+        } else {
+            money_cap_ = std::nullopt;
+        }
         if (params.contains("buy_levels")) {
             for (const auto& level : params["buy_levels"]) {
                 buy_levels.emplace_back();
@@ -49,7 +58,7 @@ struct USDCUSDT_Grid_Config {
     }
 };
 
-struct USDCUSDT_Grid_2_Config {
+struct Grid_2_Config : IStrategyConfig{
     std::vector<Buy_Level> buy_levels;
 
     bool load_params(const nlohmann::json& params) {

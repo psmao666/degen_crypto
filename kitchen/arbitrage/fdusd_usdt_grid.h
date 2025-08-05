@@ -85,7 +85,7 @@ public:
     }
 
 private:
-    USDCUSDT_Grid_Config config_;
+    Grid_Config config_;
 };
 
 
