@@ -28,3 +28,27 @@ export BINANCE_API_KEY=<your binance api key>
 export BINANCE_API_SECRET=<your binance api secret>
 ...
 ```
+
+
+## Docker
+### structure
+```
+binance-pnl-dashboard/
+├── binance_exporter/
+│   ├── binance_exporter.py
+│   └── Dockerfile
+├── prometheus/
+│   └── prometheus.yml
+└── docker-compose.yml  # optional, if you use Docker-compose
+```
+### Steps
+
+```shell
+# to start docker daemon
+sudo dockerd 
+# if no permission
+sudo usermod -aG docker $USER
+newgrp docker
+# docker compose startup
+docker-compose up --build
+```
