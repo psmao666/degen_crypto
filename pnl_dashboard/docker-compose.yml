@@ -3,15 +3,24 @@ services:
     build: ./binance_exporter
     ports:
       - "8010:8000"
+    environment:
+      BINANCE_READONLY_API_KEY: "${BINANCE_READONLY_API_KEY}"
+      BINANCE_READONLY_API_SECRET: "${BINANCE_READONLY_API_SECRET}"
 
   prometheus:
     image: prom/prometheus
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-storage:/prometheus
     ports:
       - "9091:9090"
     depends_on:
       - binance-exporter
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=30d"
+      - "--storage.tsdb.retention.size=10GB"
 
   grafana:
     image: grafana/grafana
@@ -19,4 +28,12 @@ services:
       - "3001:3000"
     depends_on:
       - prometheus
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana-storage:/var/lib/grafana
 
+volumes:
+  grafana-storage:
+  prometheus-storage:

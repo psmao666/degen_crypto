@@ -2,9 +2,10 @@
 FROM python:3.10-slim
 
 WORKDIR /app
+COPY requirements.txt .
 COPY binance_exporter.py .
 
-RUN pip install flask prometheus_client
+RUN pip install -r requirements.txt 
 
 CMD ["python", "binance_exporter.py"]
 

@@ -93,8 +93,14 @@ auto BinanceExchange::on_start(strategy_manager_t& strategy_manager, exchange_on
 
     auto refresh_handler = [&](){
         while (1) {
-            auto balances = account_balance();
-            refresher(balances);
+            try {
+                auto balances = account_balance();
+                refresher(balances);
+            } catch (const std::exception& e) {
+                LOG_ERROR(g_logger, "{}::failed to refresh account balance: {}", exchange_name(), e.what());
+                std::this_thread::sleep_for(std::chrono::seconds(10));
+                continue;
+            }
             std::this_thread::sleep_for(std::chrono::seconds(30));
         }
     };
