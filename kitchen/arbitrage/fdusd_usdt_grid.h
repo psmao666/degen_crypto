@@ -21,7 +21,6 @@ public:
     bool load_params(const nlohmann::json& params) override { 
         return config_.load_params(params);
     }
-
     const char* strategy_name() const override { return "FDUSD_USDT_Grid"; }
     void run() override { }
 
