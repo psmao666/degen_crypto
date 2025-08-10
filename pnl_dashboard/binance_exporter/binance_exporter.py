@@ -1,6 +1,7 @@
 from flask import Flask, Response
 from prometheus_client import Gauge, generate_latest, CONTENT_TYPE_LATEST, Info
 from binance.client import Client
+from datetime import datetime, timedelta
 import os
 import logging
 from decimal import Decimal
@@ -11,8 +12,13 @@ app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+TOTAL_DEPOSIT_AUD = 7500
+# Account info
+account_info_gauge = Gauge("binance_pnl_info", "Total value in AUD", ["type"])
+
 # Prometheus metrics
 total_balance_gauge = Gauge("binance_total_balance_usdt", "Total account balance in USDT")
+stable_coin_balance_gauge = Gauge("binance_stable_coin_usdt", "Total stable coin balance in USDT")
 asset_balance_gauge = Gauge("binance_asset_balance", "Balance of individual assets", ["asset"])
 total_pnl_gauge = Gauge("binance_total_pnl_usdt", "Total unrealized PnL in USDT")
 trade_count_gauge = Gauge("binance_recent_trades_count", "Number of recent trades", ["symbol"])
@@ -48,14 +54,15 @@ def get_account_data():
     try:
         # Get account information
         account = client.get_account()
-        
+
         # Calculate total balance in USDT
         total_balance_usdt = 0.0
+        stable_coin_balance_usdt = 0.0
         asset_balances = {}
         
         # Get current prices for conversion to USDT
         tickers = {ticker['symbol']: float(ticker['price']) for ticker in client.get_all_tickers()}
-        
+        # work on currently holding assets
         for balance in account['balances']:
             asset = balance['asset']
             free = float(balance['free'])
@@ -85,14 +92,19 @@ def get_account_data():
                             usdt_value = 0  # Can't convert this asset
                 
                 total_balance_usdt += usdt_value
+                if asset == 'USDT' or asset == 'FDUSD' or asset == 'USDC' or asset == 'USD1':
+                    stable_coin_balance_usdt += usdt_value
         
         return {
             'total_balance_usdt': total_balance_usdt,
+            'stable_coin_balance_usdt': stable_coin_balance_usdt,
             'asset_balances': asset_balances,
             'account_type': account.get('accountType', 'SPOT'),
             'can_trade': account.get('canTrade', False),
             'can_withdraw': account.get('canWithdraw', False),
-            'can_deposit': account.get('canDeposit', False)
+            'can_deposit': account.get('canDeposit', False),
+            'total_deposit_aud': TOTAL_DEPOSIT_AUD,
+            'overall_pnl': round((total_balance_usdt * 1.55 - TOTAL_DEPOSIT_AUD) / TOTAL_DEPOSIT_AUD * 100, 2)
         }
     
     except Exception as e:
@@ -217,7 +229,10 @@ def metrics():
         if account_data:
             # Update total balance
             total_balance_gauge.set(account_data['total_balance_usdt'])
-            
+            stable_coin_balance_gauge.set(account_data['stable_coin_balance_usdt'])
+            account_info_gauge.labels(type='deposit').set(account_data['total_deposit_aud'])
+            account_info_gauge.labels(type='pnl').set(account_data['overall_pnl'])
+
             # Update individual asset balances
             for asset, balance in account_data['asset_balances'].items():
                 asset_balance_gauge.labels(asset=asset).set(balance)
